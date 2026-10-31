@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ClientBank.manage.mapper.BankTransactionLogMapper">
+
+    <!-- 1. 结果集映射，这里的 id 叫 BankTransactionLogResult -->
+    <resultMap type="com.ClientBank.manage.domain.BankTransactionLog" id="BankTransactionLogResult">
+        <result property="id"    column="id"    />
+        <result property="accountId"    column="account_id"    />
+        <result property="transactionType"    column="transaction_type"    />
+        <result property="amount"    column="amount"    />
+        <result property="dueDate"    column="due_date"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="interest"    column="interest"    />
+        <result property="accumulatedInterest"    column="accumulated_interest"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <!-- 插入数据 -->
+    <insert id="insertBankTransactionLog">
+        INSERT INTO bank_transaction_log (
+            id,
+            account_id,
+            transaction_type,
+            amount,
+            due_date,
+            create_time,
+            accumulated_interest,
+            status
+        )
+        VALUES (
+                   #{id},
+                   #{accountId},
+                   #{transactionType},
+                   #{amount},
+                   #{dueDate},
+                   #{createTime},
+                   #{accumulatedInterest},
+                   #{status}
+               )
+    </insert>
+
+    <!-- 2. 查询未结清借款：引用上面定义的 id (BankTransactionLogResult)，并把 0gb 改回 0 -->
+    <select id="selectUnpaidLoansByAccountId" resultMap="BankTransactionLogResult">
+        SELECT * FROM bank_transaction_log
+        WHERE account_id = #{accountId}
+          AND transaction_type = '1'
+          AND status = 0
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 根据ID查询单条记录：补全全限定类名 -->
+    <select id="selectBankTransactionLogById" resultType="com.ClientBank.manage.domain.BankTransactionLog">
+        SELECT id, account_id AS accountId, transaction_type AS transactionType,
+               amount, due_date AS dueDate, create_time AS createTime,
+               accumulated_interest AS accumulatedInterest, status
+        FROM bank_transaction_log
+        WHERE id = #{id}
+    </select>
+
+    <!-- 更新记录：补全 parameterType 全限定类名 -->
+    <update id="updateBankTransactionLog" parameterType="com.ClientBank.manage.domain.BankTransactionLog">
+        UPDATE bank_transaction_log
+        SET
+            amount = #{amount},
+            accumulated_interest = #{accumulatedInterest},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 计算总负债：用减号，因为你的 amount 是负数 -->
+    <select id="selectTotalDebtByAccountId" resultType="java.lang.Double">
+        select sum(accumulated_interest - amount) as interestAndAmount
+        from bank_transaction_log where account_id = #{accountId};
+    </select>
+</mapper>

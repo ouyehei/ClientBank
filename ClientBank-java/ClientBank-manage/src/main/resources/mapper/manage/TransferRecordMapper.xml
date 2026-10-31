@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ClientBank.manage.mapper.TransferRecordMapper">
+    
+    <resultMap type="TransferRecord" id="TransferRecordResult">
+        <result property="id"    column="id"    />
+        <result property="transferNo"    column="transfer_no"    />
+        <result property="fromAccountId"    column="from_account_id"    />
+        <result property="toAccountId"    column="to_account_id"    />
+        <result property="fromUserId"    column="from_user_id"    />
+        <result property="toUserId"    column="to_user_id"    />
+        <result property="amount"    column="amount"    />
+        <result property="fee"    column="fee"    />
+        <result property="status"    column="status"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTransferRecordVo">
+        select id, transfer_no, from_account_id, to_account_id, from_user_id, to_user_id, amount, fee, status, fail_reason, create_time, update_time from transfer_record
+    </sql>
+
+    <select id="selectTransferRecordList" parameterType="TransferRecord" resultMap="TransferRecordResult">
+        <include refid="selectTransferRecordVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectTransferRecordById" parameterType="Long" resultMap="TransferRecordResult">
+        <include refid="selectTransferRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTransferRecord" parameterType="TransferRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into transfer_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="transferNo != null">transfer_no,</if>
+            <if test="fromAccountId != null">from_account_id,</if>
+            <if test="toAccountId != null">to_account_id,</if>
+            <if test="fromUserId != null">from_user_id,</if>
+            <if test="toUserId != null">to_user_id,</if>
+            <if test="amount != null">amount,</if>
+            <if test="fee != null">fee,</if>
+            <if test="status != null">status,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="freeTime != null">free_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="transferNo != null">#{transferNo},</if>
+            <if test="fromAccountId != null">#{fromAccountId},</if>
+            <if test="toAccountId != null">#{toAccountId},</if>
+            <if test="fromUserId != null">#{fromUserId},</if>
+            <if test="toUserId != null">#{toUserId},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="fee != null">#{fee},</if>
+            <if test="status != null">#{status},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="freeTime != null">#{freeTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTransferRecord" parameterType="TransferRecord">
+        update transfer_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="transferNo != null">transfer_no = #{transferNo},</if>
+            <if test="fromAccountId != null">from_account_id = #{fromAccountId},</if>
+            <if test="toAccountId != null">to_account_id = #{toAccountId},</if>
+            <if test="fromUserId != null">from_user_id = #{fromUserId},</if>
+            <if test="toUserId != null">to_user_id = #{toUserId},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="fee != null">fee = #{fee},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTransferRecordById" parameterType="Long">
+        delete from transfer_record where id = #{id}
+    </delete>
+
+    <delete id="deleteTransferRecordByIds" parameterType="String">
+        delete from transfer_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <select id="selectTransferRecordListByUserId" resultMap="TransferRecordResult">
+        SELECT *
+        FROM transfer_record
+        WHERE from_user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 扣减余额：必须加 balance >= #{amount} 条件，这是解决并发超扣的核心 -->
+    <update id="deductBalance" parameterType="map">
+        UPDATE bank_account
+        SET balance = balance - #{amount},
+            available_balance = available_balance - #{amount}
+        WHERE card_number = #{accountId}
+          AND available_balance >= #{amount}
+    </update>
+
+    <!-- 增加余额 -->
+    <update id="addBalance" parameterType="map">
+        UPDATE bank_account
+        SET balance = balance + #{amount},
+            available_balance = available_balance + #{amount}
+        WHERE card_number = #{accountId}
+    </update>
+
+    <!-- 解冻操作：恢复余额并修改状态 -->
+    <update id="unfreezeRecord">
+        UPDATE bank_account
+        SET
+            frozen_balance = frozen_balance - #{amount},
+            available_balance = available_balance + #{amount}
+        WHERE card_number = #{toAccountId}
+          AND frozen_balance >= #{amount}
+    </update>
+
+    <update id="freezeTransferFunds" parameterType="map">
+        UPDATE bank_account AS from_acc
+            JOIN bank_account AS to_acc ON 1=1
+            SET
+                from_acc.balance = from_acc.balance - (#{amount} + #{fee}),
+                from_acc.available_balance = from_acc.available_balance - (#{amount} + #{fee}),
+                to_acc.balance = to_acc.balance + #{amount},
+                to_acc.frozen_balance = to_acc.frozen_balance + #{amount}
+        WHERE
+            from_acc.card_number = #{fromAccountId}
+          AND from_acc.available_balance >= (#{amount} + #{fee})
+          AND to_acc.card_number = #{toAccountId}
+    </update>
+
+    <update id="updateTransferStatus">
+        UPDATE transfer_record tr
+            JOIN bank_account acc ON tr.to_account_id = acc.card_number
+            SET
+                tr.status = 1,
+                acc.frozen_balance = acc.frozen_balance - tr.amount,
+                acc.available_balance = acc.available_balance + tr.amount
+        WHERE
+            tr.status = 0
+          AND tr.free_time &lt;= NOW()
+    </update>
+
+    <select id="queryExpiredFreezeRecords" resultMap="TransferRecordResult">
+        SELECT
+            id, transfer_no, to_account_id, amount, fee
+        FROM transfer_record
+        WHERE status = 0 AND free_time &lt;= NOW()
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ClientBank.manage.mapper.BankAccountMapper">
+    <!-- 根据ID查询 -->
+    <select id="selectBankAccountByCardNumber" resultType="com.ClientBank.manage.domain.BankAccount">
+        SELECT
+            account_id AS accountId,
+            user_id AS userId,
+            card_number AS cardNumber,
+            account_type AS accountType,
+            balance,
+            credit_limit AS creditLimit,
+            currency,
+            frozen_balance AS frozenBalance,
+            create_time AS createTime
+        FROM bank_account
+        WHERE card_number = #{cardNumber}
+    </select>
+
+
+    <update id="updateCreditLimit">
+        UPDATE bank_account
+        SET credit_limit = credit_limit + #{amount}
+        WHERE card_number = #{cardNumber}
+    </update>
+
+    <update id="updateBalance">
+        UPDATE bank_account
+        SET balance = IFNULL(balance, 0) + #{amount},
+            available_balance = IFNULL(available_balance, 0) + #{amount}
+        WHERE card_number = #{cardNumber}
+    </update>
+</mapper>

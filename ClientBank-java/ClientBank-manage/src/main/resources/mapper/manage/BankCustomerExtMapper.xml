@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ClientBank.manage.mapper.BankCustomerExtMapper">
+    
+    <resultMap type="BankCustomerExt" id="BankCustomerExtResult">
+        <result property="extId"    column="ext_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="realName"    column="real_name"    />
+        <result property="idCardNumber"    column="id_card_number"    />
+        <result property="residenceAddress"    column="residence_address"    />
+        <result property="accountStatus"    column="account_status"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap id="BankCustomerExtBankAccountResult" type="BankCustomerExt" extends="BankCustomerExtResult">
+        <collection property="bankAccountList" ofType="BankAccount" column="ext_id" select="selectBankAccountList" />
+    </resultMap>
+
+    <resultMap type="BankAccount" id="BankAccountResult">
+        <result property="accountId"    column="account_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="cardNumber"    column="card_number"    />
+        <result property="accountType"    column="account_type"    />
+        <result property="balance"    column="balance"    />
+        <result property="creditLimit"    column="credit_limit"    />
+        <result property="currency"    column="currency"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectBankCustomerExtVo">
+        select ext_id, user_id, real_name, id_card_number, residence_address, account_status, remark from bank_customer_ext
+    </sql>
+
+    <select id="selectBankCustomerExtList" parameterType="BankCustomerExt" resultMap="BankCustomerExtResult">
+        <include refid="selectBankCustomerExtVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectBankCustomerExtByExtId" parameterType="Long" resultMap="BankCustomerExtBankAccountResult">
+        select ext_id, user_id, real_name, id_card_number, residence_address, account_status, remark
+        from bank_customer_ext
+        where ext_id = #{extId}
+    </select>
+
+    <select id="selectBankAccountList" resultMap="BankAccountResult">
+        select account_id, user_id, card_number, account_type, balance, credit_limit, currency, create_time
+        from bank_account
+        where account_id = #{account_id}
+    </select>
+
+    <insert id="insertBankCustomerExt" parameterType="BankCustomerExt" useGeneratedKeys="true" keyProperty="extId">
+        insert into bank_customer_ext
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="realName != null">real_name,</if>
+            <if test="idCardNumber != null">id_card_number,</if>
+            <if test="residenceAddress != null">residence_address,</if>
+            <if test="accountStatus != null">account_status,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="realName != null">#{realName},</if>
+            <if test="idCardNumber != null">#{idCardNumber},</if>
+            <if test="residenceAddress != null">#{residenceAddress},</if>
+            <if test="accountStatus != null">#{accountStatus},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBankCustomerExt" parameterType="BankCustomerExt">
+        update bank_customer_ext
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="idCardNumber != null">id_card_number = #{idCardNumber},</if>
+            <if test="residenceAddress != null">residence_address = #{residenceAddress},</if>
+            <if test="accountStatus != null">account_status = #{accountStatus},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where ext_id = #{extId}
+    </update>
+
+    <delete id="deleteBankCustomerExtByExtId" parameterType="Long">
+        delete from bank_customer_ext where ext_id = #{extId}
+    </delete>
+
+    <delete id="deleteBankCustomerExtByExtIds" parameterType="String">
+        delete from bank_customer_ext where ext_id in 
+        <foreach item="extId" collection="array" open="(" separator="," close=")">
+            #{extId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteBankAccountByAccountIds" parameterType="String">
+        delete from bank_account where account_id in 
+        <foreach item="accountId" collection="array" open="(" separator="," close=")">
+            #{accountId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteBankAccountByAccountId" parameterType="Long">
+        delete from bank_account where account_id = #{accountId}
+    </delete>
+
+    <insert id="batchBankAccount">
+        insert into bank_account( account_id, user_id, card_number, account_type, balance, credit_limit, currency, create_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.accountId}, #{item.userId}, #{item.cardNumber}, #{item.accountType}, #{item.balance}, #{item.creditLimit}, #{item.currency}, #{item.createTime})
+        </foreach>
+    </insert>
+
+
+
+    <resultMap id="CustomerExtWithAccountsResult" type="com.ClientBank.manage.domain.vo.BankCustomerExtUserVo">
+        <!-- 主表字段映射 -->
+        <id property="extId" column="ext_id" />
+        <result property="userId" column="user_id" />
+        <result property="realName" column="real_name" />
+        <result property="idCardNumber" column="id_card_number" />
+        <result property="residenceAddress" column="residence_address" />
+        <result property="accountStatus" column="account_status" />
+        <result property="remark" column="remark" />
+        <result property="userName" column="userName" />
+        <result property="nickName" column="nickName" />
+        <result property="email" column="email" />
+        <result property="phonenumber" column="phonenumber" />
+
+        <!-- 关键：把多行银行卡数据封装到 List 里 -->
+        <collection property="bankAccountList" ofType="com.ClientBank.manage.domain.BankAccount">
+            <id property="accountId" column="account_id" />
+            <result property="cardNumber" column="card_number" />
+            <result property="accountType" column="account_type" />
+            <result property="balance" column="balance" />
+            <result property="creditLimit" column="credit_limit" />
+            <result property="currency" column="currency" />
+            <result property="createTime" column="createTime" />
+        </collection>
+    </resultMap>
+
+    <!-- 查询语句，使用 resultMap 而不是 resultType -->
+    <select id="selectBankCustomerExtByUserId" parameterType="Long" resultMap="CustomerExtWithAccountsResult">
+        SELECT
+            bce.*,
+            su.user_name  AS userName,
+            su.nick_name  AS nickName,
+            su.email      AS email,
+            su.phonenumber AS phonenumber,
+            bca.account_id,
+            bca.card_number,
+            bca.account_type,
+            bca.balance,
+            bca.credit_limit,
+            bca.currency,
+            bca.create_time AS createTime
+        FROM
+            bank_customer_ext bce
+                LEFT JOIN sys_user su ON bce.user_id = su.user_id
+                LEFT JOIN bank_account bca ON bce.user_id = bca.user_id
+        WHERE
+            bce.user_id = #{userId}
+    </select>
+</mapper>
