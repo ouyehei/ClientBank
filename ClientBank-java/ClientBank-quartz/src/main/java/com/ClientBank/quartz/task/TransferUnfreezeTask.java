@@ -3,7 +3,10 @@ package com.ClientBank.quartz.task;
 import com.ClientBank.common.utils.spring.SpringUtils;
 import com.ClientBank.manage.mapper.TransferRecordMapper;
 import org.springframework.stereotype.Component;
-
+/**
+ * 该类用于解冻资金
+ *
+ */
 @Component("transferUnfreezeTask")
 public class TransferUnfreezeTask {
     public void unfreezeExpiredRecords() {

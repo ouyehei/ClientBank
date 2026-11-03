@@ -138,6 +138,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <result property="creditLimit" column="credit_limit" />
             <result property="currency" column="currency" />
             <result property="createTime" column="createTime" />
+            <result property="availableBalance" column="available_balance" />
+            <result property="frozenBalance" column="frozen_balance" />
         </collection>
     </resultMap>
 
@@ -155,7 +157,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             bca.balance,
             bca.credit_limit,
             bca.currency,
-            bca.create_time AS createTime
+            bca.create_time AS createTime,
+            bca.available_balance AS availableBalance,
+            bca.frozen_balance AS frozenBalance
         FROM
             bank_customer_ext bce
                 LEFT JOIN sys_user su ON bce.user_id = su.user_id
@@ -163,4 +167,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE
             bce.user_id = #{userId}
     </select>
+    <!-- 查出逾期且有欠款的用户ID -->
+    <select id="selectOverdueUserIds" resultType="Long">
+        SELECT DISTINCT bce.user_id
+        FROM bank_transaction_log btl
+        LEFT JOIN bank_account ba ON btl.account_id = ba.account_id
+        LEFT JOIN bank_customer_ext bce ON ba.user_id = bce.user_id
+        WHERE btl.due_date &lt;= NOW()
+        AND btl.amount &gt; 0
+        AND bce.account_status = '0';
+    </select>
+    <!-- 将逾期客户的账户状态修改为异常(假设1代表异常) -->
+    <update id="updateCustomerStatusToExceptionByUserIds">
+        UPDATE bank_customer_ext
+        SET account_status = '1'
+        WHERE user_id IN
+        <foreach collection="list" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </update>
 </mapper>

@@ -267,13 +267,13 @@ const repayRules = {
 };
 
 const formatDate = (timestamp) => {
-  if (!dateStrOrTimestamp) return '请选择期限';
+  if (!timestamp) return '请选择期限';
 
   // 如果是字符串格式（如 "2029-10-30 15:32:46"），直接返回
-  if (typeof dateStrOrTimestamp === 'string') {
-    return dateStrOrTimestamp;
+  if (typeof timestamp === 'string') {
+    return timestamp;
   }
-  const d = new Date(dateStrOrTimestamp);
+  const d = new Date(timestamp);
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 };

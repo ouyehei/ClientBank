@@ -4,6 +4,7 @@ import com.ClientBank.manage.domain.BankAccount;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface BankAccountMapper {
     /**

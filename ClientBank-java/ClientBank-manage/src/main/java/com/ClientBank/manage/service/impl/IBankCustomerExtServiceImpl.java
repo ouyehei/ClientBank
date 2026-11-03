@@ -112,6 +112,16 @@ public class IBankCustomerExtServiceImpl implements IBankCustomerExtService
         return bankCustomerExtMapper.selectBankCustomerExtByUserId(userId);
     }
 
+    @Override
+    public List<Long> selectOverdueUserIds() {
+        return bankCustomerExtMapper.selectOverdueUserIds();
+    }
+
+    @Override
+    public int updateCustomerStatusToExceptionByUserIds(List<Long> userIds) {
+        return bankCustomerExtMapper.updateCustomerStatusToExceptionByUserIds(userIds);
+    }
+
     /**
      * 新增银行账户资金信息
      * 

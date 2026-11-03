@@ -3,6 +3,7 @@ package com.ClientBank.manage.service;
 import java.util.List;
 import com.ClientBank.manage.domain.BankCustomerExt;
 import com.ClientBank.manage.domain.vo.BankCustomerExtUserVo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 客户信息Service接口
@@ -63,4 +64,10 @@ public interface IBankCustomerExtService
      * 根据userId查询客户信息及关联用户信息
      */
     public BankCustomerExtUserVo selectBankCustomerExtByUserId(Long userId);
+
+    // 查出逾期且未结清的账户对应的用户ID列表
+    List<Long> selectOverdueUserIds();
+
+    // 根据用户ID列表，批量更新客户账户状态为异常
+    int updateCustomerStatusToExceptionByUserIds(@Param("list") List<Long> userIds);
 }

@@ -51,6 +51,7 @@
 
         <el-descriptions-item label="账户状态" :span="2">
           <el-tag v-if="form.accountStatus === '0'" type="success" effect="plain">正常</el-tag>
+          <el-tag v-else-if="form.accountStatus === '1'" type="warning" effect="plain">冻结</el-tag>
           <el-tag v-else type="danger" effect="plain">{{ form.accountStatus }}</el-tag>
         </el-descriptions-item>
       </el-descriptions>
@@ -70,21 +71,32 @@
         <el-table-column prop="cardNumber" label="银行卡号" width="240" class-name="card-no" />
         <el-table-column prop="accountType" label="账户类型" width="120" align="center">
           <template #default="scope">
-            <el-tag size="small" :type="scope.row.accountType == '1' ? 'primary' : 'warning'">
+            <el-tag size="small"
+              :type="scope.row.accountType == '11' ? 'primary' : (scope.row.accountType == '12' ? 'info' : 'success')">
               {{
                 scope.row.accountType == '11' ? '储蓄一类卡'
                   : scope.row.accountType == '12' ? '储蓄二类卡'
                     : scope.row.accountType == '2' ? '信用卡'
-              : scope.row.accountType
+                      : scope.row.accountType
               }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="currency" label="币种" width="100" align="center" />
 
-        <el-table-column prop="balance" label="当前余额" align="right" min-width="160">
+        <el-table-column prop="balance" label="总余额" align="right" min-width="160">
           <template #default="scope">
             <span class="money">¥ {{ formatMoney(scope.row.balance) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="available_balance" label="可用余额" align="right" min-width="160">
+          <template #default="scope">
+            <span class="money">¥ {{ formatMoney(scope.row.available_balance) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="frozen_balance" label="冻结金额" align="right" min-width="160">
+          <template #default="scope">
+            <span class="money">¥ {{ formatMoney(scope.row.frozen_balance) }}</span>
           </template>
         </el-table-column>
 
@@ -104,7 +116,7 @@
 <script setup name="PersonalCustomerInfo">
 import { getUserProfile } from "@/api/system/user";
 import { getCustomerExtByUserId } from "@/api/manage/customerExt"; // 确保此接口指向 /manage/customerExt/list/
-import { updateCustomerExt } from "@/api/manage/customerExt";
+import { el } from "element-plus/es/locales.mjs";
 
 const { proxy } = getCurrentInstance();
 

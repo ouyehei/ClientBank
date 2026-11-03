@@ -91,4 +91,10 @@ public interface BankCustomerExtMapper
     public int deleteBankAccountByAccountId(Long extId);
 
     public BankCustomerExtUserVo selectBankCustomerExtByUserId(@Param("userId") Long userId);
+
+    // 查出逾期且未结清的账户对应的用户ID列表
+    List<Long> selectOverdueUserIds();
+
+    // 根据用户ID列表，批量更新客户账户状态为异常
+    int updateCustomerStatusToExceptionByUserIds(@Param("list") List<Long> userIds);
 }

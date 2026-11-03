@@ -1,0 +1,360 @@
+{
+  "info": {
+    "_postman_id": "c6e2c4e6-87d7-4f7f-87e2-24e76a10cf0d",
+    "name": "ClientBank",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40188344"
+  },
+  "item": [
+    {
+      "name": "01通用功能",
+      "item": [
+        {
+          "name": "登录接口测试",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();\r",
+                  "if(jsonData.code==200){\r",
+                  "    var token = jsonData.token;\r",
+                  "    pm.environment.set(\"my_token\",token);\r",
+                  "    console.log(\"已成功设置token\");\r",
+                  "}else{\r",
+                  "    console.error(\"获取token失败\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"gaoyuliang\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/dev-api/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "dev-api",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02普通用户",
+      "item": [
+        {
+          "name": "用id查用户全部信息",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{my_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/manage/customerExt/list/101",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "customerExt",
+                "list",
+                "101"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "用户id查转账记录",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{my_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/manage/TransferRecord/list/100",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "TransferRecord",
+                "list",
+                "100"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "根据银行卡号查姓名",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{my_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/manage/TransferRecord/getRealName?cardNum=622202196001011234",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "TransferRecord",
+                "getRealName"
+              ],
+              "query": [
+                {
+                  "key": "cardNum",
+                  "value": "622202196001011234"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "查客户信息列表",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{my_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/manage/customerExt/bankNum/101",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "customerExt",
+                "bankNum",
+                "101"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "添加转账记录",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{my_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": null,\r\n    \"transferNo\": null,\r\n    \"fromAccountId\": \"622202199801250005\",\r\n    \"toAccountId\": \"622202196001011234\",\r\n    \"fromUserId\": 101,\r\n    \"toUserId\": 100,\r\n    \"amount\": 15000.00,\r\n    \"fee\": null,\r\n    \"status\": null,\r\n    \"failReason\": null,\r\n    \"remark\":\"测试转账\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/manage/TransferRecord",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "TransferRecord"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "查询概览信息",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{my_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": null,\r\n    \"transferNo\": null,\r\n    \"fromAccountId\": \"622202199801250005\",\r\n    \"toAccountId\": \"622202196001011234\",\r\n    \"fromUserId\": 101,\r\n    \"toUserId\": 100,\r\n    \"amount\": 15000.00,\r\n    \"fee\": null,\r\n    \"status\": null,\r\n    \"failReason\": null,\r\n    \"remark\":\"测试转账\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/manage/account/dashboard?userId=101",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "account",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "101"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "普通用户的接口请求汇总在这里",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{my_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "my_token",
+      "value": ""
+    }
+  ]
+}

@@ -46,8 +46,10 @@ public class BankAccount extends BaseEntity
     private String currency;
 
     /** 可用金额 **/
+    @Excel(name = "可用金额")
     private BigDecimal availableBalance;
     /** 冻结金额 **/
+    @Excel(name = "冻结金额")
     private BigDecimal frozenBalance;
 
 
@@ -63,6 +65,8 @@ public class BankAccount extends BaseEntity
             .append("creditLimit", getCreditLimit())
             .append("currency", getCurrency())
             .append("createTime", getCreateTime())
+            .append("availableBalance", getAvailableBalance())
+            .append("frozenBalance", getFrozenBalance())
             .toString();
     }
 }
