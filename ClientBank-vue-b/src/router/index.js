@@ -37,9 +37,16 @@ export const constantRoutes = [
       }
     ]
   },
+  //旧版登录页指向
+  // {
+  //   path: '/login',
+  //   component: () => import('@/views/login'),
+  //   hidden: true
+  // },
+  //新版登录页指向
   {
     path: '/login',
-    component: () => import('@/views/login'),
+    component: () => import('@/views/login/login.vue'),
     hidden: true
   },
   {

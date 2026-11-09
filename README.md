@@ -66,8 +66,8 @@ cd ClientBank
 
 1. 进入前端项目目录：`cd ClientBank-vue`
 2. 安装依赖：`npm install`
-3. 启动开发服务器：`npm run serve`
-4. 浏览器访问 `http://localhost:8080`（端口以实际配置为准）
+3. 启动开发服务器：`npm run dev`
+4. 浏览器访问 `http://localhost:6137`
 
 ## 功能模块
 

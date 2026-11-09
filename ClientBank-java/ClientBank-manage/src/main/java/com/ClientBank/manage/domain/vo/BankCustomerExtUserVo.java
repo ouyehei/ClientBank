@@ -28,6 +28,8 @@ public class BankCustomerExtUserVo {
 
     /** 备注 */
     private String remark;
+    /** 年龄 **/
+    private int age;
 
     // ================= 以下是来自 sys_user 表的字段 =================
     /** 用户账号 */

@@ -3,20 +3,10 @@
     <!-- 筛选表单 -->
     <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="80px">
       <el-form-item label="卡号" prop="cardNumber">
-        <el-input
-          v-model="queryParams.cardNumber"
-          placeholder="请输入卡号"
-          clearable
-          style="width: 200px"
-        />
-      </el-form-item>
-      <el-form-item label="账户ID" prop="accountId">
-        <el-input
-          v-model="queryParams.accountId"
-          placeholder="请输入账户ID"
-          clearable
-          style="width: 200px"
-        />
+        <el-select v-model="queryParams.cardNumber" placeholder="请选择卡号" clearable filterable :loading="cardLoading"
+          style="width: 240px" @Change="handleQuery">
+          <el-option v-for="item in cardOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -42,7 +32,13 @@
           <el-tag v-else type="danger">失败</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable />                     
+      <el-table-column label="备注" align="center" prop="remark" min-width="150" show-overflow-tooltip>
+        <template #default="scope">
+          <span v-if="scope.row.remark">{{ scope.row.remark }}</span>
+          <span v-else style="color: #999">-</span>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -51,6 +47,7 @@
 import { ref, reactive, onMounted } from "vue"
 import request from "@/utils/request"
 import { getUserProfile } from "@/api/system/user"
+import { getBankCardList } from '@/api/manage/TransferRecord';
 
 const { proxy } = getCurrentInstance()
 
@@ -58,11 +55,30 @@ const loading = ref(false)
 const transferList = ref([])
 let allData = []
 let currentUserId = null
+const cardOptions = ref([])
+const cardLoading = ref(false)
 
 const queryParams = reactive({
   cardNumber: null,
   accountId: null
 })
+/** 获取卡号列表并渲染到下拉框 */
+async function loadCardOptions() {
+  if (cardOptions.value.length > 0) return
+  try {
+    const userRes = await getUserProfile()
+    currentUserId = userRes.data.userId
+    const res = await getBankCardList(currentUserId)
+    if (res.code === 200) {
+      cardOptions.value = (res.from_account_ids || []).map(card => ({
+        label: card,
+        value: card
+      }))
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
 
 /** 查询转账记录 */
 async function getList() {
@@ -72,7 +88,6 @@ async function getList() {
     try {
       const userRes = await getUserProfile()
       currentUserId = userRes.data.userId
-      console.log("当前登录用户的 userId:", currentUserId)
     } catch (error) {
       proxy.$modal.msgError("获取当前用户信息失败")
       loading.value = false
@@ -137,5 +152,6 @@ function handleSortByNewest() {
 
 onMounted(() => {
   getList()
+  loadCardOptions()
 })
 </script>

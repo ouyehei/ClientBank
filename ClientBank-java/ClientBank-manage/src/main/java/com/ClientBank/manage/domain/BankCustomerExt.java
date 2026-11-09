@@ -37,6 +37,13 @@ public class BankCustomerExt extends BaseEntity
     /** 账户状态（0正常，1冻结，2挂失） */
     @Excel(name = "账户状态", readConverterExp = "0=正常，1冻结，2挂失")
     private String accountStatus;
+    private int age;
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
 
     /** 银行账户资金信息 */
     private List<BankAccount> bankAccountList;

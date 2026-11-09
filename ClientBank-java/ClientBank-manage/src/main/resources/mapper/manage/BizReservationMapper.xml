@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ClientBank.manage.mapper.BizReservationMapper">
+    
+    <resultMap type="BizReservation" id="BizReservationResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="serviceCode"    column="service_code"    />
+        <result property="serviceName"    column="service_name"    />
+        <result property="serviceType"    column="service_type"    />
+        <result property="reserveTime"    column="reserve_time"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap id="BizReservationBizReservationLogResult" type="BizReservation" extends="BizReservationResult">
+        <collection property="bizReservationLogList" ofType="BizReservationLog" column="id" select="selectBizReservationLogList" />
+    </resultMap>
+
+    <resultMap type="BizReservationLog" id="BizReservationLogResult">
+        <result property="id"    column="id"    />
+        <result property="reservationId"    column="reservation_id"    />
+        <result property="handlerId"    column="handler_id"    />
+        <result property="handlerName"    column="handler_name"    />
+        <result property="action"    column="action"    />
+        <result property="handleRemark"    column="handle_remark"    />
+        <result property="handleTime"    column="handle_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectBizReservationVo">
+        select id, user_id, service_code, service_name, service_type, reserve_time, status, remark, del_flag, create_by, create_time, update_by, update_time from biz_reservation
+    </sql>
+
+    <select id="selectBizReservationList" parameterType="BizReservation" resultMap="BizReservationResult">
+        <include refid="selectBizReservationVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="serviceCode != null  and serviceCode != ''"> and service_code = #{serviceCode}</if>
+            <if test="serviceName != null  and serviceName != ''"> and service_name like concat('%', #{serviceName}, '%')</if>
+            <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
+            <if test="params.beginReserveTime != null and params.beginReserveTime != '' and params.endReserveTime != null and params.endReserveTime != ''"> and reserve_time between #{params.beginReserveTime} and #{params.endReserveTime}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectBizReservationById" parameterType="Long" resultMap="BizReservationBizReservationLogResult">
+        select id, user_id, service_code, service_name, service_type, reserve_time, status, remark, del_flag, create_by, create_time, update_by, update_time
+        from biz_reservation
+        where id = #{id}
+    </select>
+
+    <select id="selectBizReservationLogList" resultMap="BizReservationLogResult">
+        select id, reservation_id, handler_id, handler_name, action, handle_remark, handle_time, create_by, create_time
+        from biz_reservation_log
+        where reservation_id = #{reservation_id}
+    </select>
+
+    <insert id="insertBizReservation" parameterType="BizReservation" useGeneratedKeys="true" keyProperty="id">
+        insert into biz_reservation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="serviceCode != null and serviceCode != ''">service_code,</if>
+            <if test="serviceName != null and serviceName != ''">service_name,</if>
+            <if test="serviceType != null and serviceType != ''">service_type,</if>
+            <if test="reserveTime != null">reserve_time,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="serviceCode != null and serviceCode != ''">#{serviceCode},</if>
+            <if test="serviceName != null and serviceName != ''">#{serviceName},</if>
+            <if test="serviceType != null and serviceType != ''">#{serviceType},</if>
+            <if test="reserveTime != null">#{reserveTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBizReservation" parameterType="BizReservation">
+        update biz_reservation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="serviceCode != null and serviceCode != ''">service_code = #{serviceCode},</if>
+            <if test="serviceName != null and serviceName != ''">service_name = #{serviceName},</if>
+            <if test="serviceType != null and serviceType != ''">service_type = #{serviceType},</if>
+            <if test="reserveTime != null">reserve_time = #{reserveTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBizReservationById" parameterType="Long">
+        delete from biz_reservation where id = #{id}
+    </delete>
+
+    <delete id="deleteBizReservationByIds" parameterType="String">
+        delete from biz_reservation where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteBizReservationLogByReservationIds" parameterType="String">
+        delete from biz_reservation_log where reservation_id in 
+        <foreach item="reservationId" collection="array" open="(" separator="," close=")">
+            #{reservationId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteBizReservationLogByReservationId" parameterType="Long">
+        delete from biz_reservation_log where reservation_id = #{reservationId}
+    </delete>
+
+    <insert id="batchBizReservationLog">
+        insert into biz_reservation_log( id, reservation_id, handler_id, handler_name, action, handle_remark, handle_time, create_by, create_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.reservationId}, #{item.handlerId}, #{item.handlerName}, #{item.action}, #{item.handleRemark}, #{item.handleTime}, #{item.createBy}, #{item.createTime})
+        </foreach>
+    </insert>
+</mapper>

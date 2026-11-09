@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, defineOptions, onActivated } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { Refresh } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { getRealNameByCardNum, getBankCardList, addTransferRecord } from '@/api/manage/TransferRecord';

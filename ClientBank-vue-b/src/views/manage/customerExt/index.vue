@@ -33,6 +33,9 @@
         <el-descriptions-item label="证件号码">
           <span class="id-text">{{ form.idCardNumber || '-' }}</span>
         </el-descriptions-item>
+        <el-descriptions-item label="年龄">
+          <span>{{ form.age }}</span>
+        </el-descriptions-item>
 
         <el-descriptions-item label="手机号码">
           <el-input v-if="isEdit" v-model="form.phonenumber" placeholder="请输入手机号" />
