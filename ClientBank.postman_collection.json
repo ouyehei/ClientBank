@@ -7,10 +7,10 @@
   },
   "item": [
     {
-      "name": "01通用功能",
+      "name": "01前置操作",
       "item": [
         {
-          "name": "登录接口测试",
+          "name": "登录接口（为获取token）",
           "event": [
             {
               "listen": "prerequest",
@@ -278,6 +278,105 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "若依上传头像操作",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();\r",
+                  "if (jsonData.code === 200 && jsonData.url) {\r",
+                  "    // 3. 将返回的 url 存入环境变量\r",
+                  "    pm.environment.set(\"avatarUrl\", jsonData.url);\r",
+                  "    \r",
+                  "    // 4. 在控制台打印确认（可选）\r",
+                  "    console.log(\"头像上传成功，URL已保存: \" + jsonData.url);\r",
+                  "} else {\r",
+                  "    console.error(\"头像上传失败或返回格式异常:\", jsonData.msg);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{my_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "39d47581-d536-431f-a408-92cec91f8c5f",
+                  "src": "postman-cloud:///1f1dcf80-bdfc-4310-887d-3bee2d95497e"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/common/upload",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "common",
+                "upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "用户修改个人信息",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{my_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nickName\": \"高育良\",\r\n  \"email\": \"new@example.com\",\r\n  \"phonenumber\": \"13800138000\",\r\n  \"avatar\": \"{{avatarUrl}}\",\r\n  \"realName\": \"高育良\",\r\n  \"idCardNumber\": \"420106199001011244\",\r\n  \"residenceAddress\": \"湖北省武汉市武昌区XX路\",\r\n  \"age\": 30\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/manage/customerExt/profile",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "manage",
+                "customerExt",
+                "profile"
+              ]
+            }
+          },
+          "response": []
         }
       ],
       "description": "普通用户的接口请求汇总在这里",
@@ -355,6 +454,11 @@
     {
       "key": "my_token",
       "value": ""
+    },
+    {
+      "key": "avatarUrl",
+      "value": "",
+      "type": "default"
     }
   ]
 }

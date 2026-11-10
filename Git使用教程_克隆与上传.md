@@ -64,6 +64,14 @@ git clone https://github.com/ouyehei/ClientBank.git
 
    这行命令的意思是：把贴好标签的"快递箱"发送到 GitHub 上。
 
+   **异常：分支代码冲突**
+
+   ```
+   git push --force origin main
+   ```
+
+   这行命令的意思是：强制上传代码。
+
 3. **验证上传成功**：执行完第三步后，去 GitHub 网页刷新一下你的仓库页面，就能看到最新的修改了！
 
 ---

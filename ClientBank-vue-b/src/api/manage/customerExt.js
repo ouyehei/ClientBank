@@ -48,3 +48,39 @@ export function getCustomerExtByUserId(userId) {
     method: 'get'
   })
 }
+
+// 获取当前登录用户完整信息（含 deptId、扩展表字段）
+export function getMyProfile() {
+  return request({
+    url: '/manage/customerExt/profile',
+    method: 'get'
+  })
+}
+
+// 提交个人信息修改（不含 deptId / userName / userType）
+export function updateMyProfile(data) {
+  return request({
+    url: '/manage/customerExt/profile',
+    method: 'put',
+    data: data
+  })
+}
+
+// 上传头像，返回 url
+export function uploadAvatar(data) {
+  return request({
+    url: '/common/upload',
+    method: 'post',
+    data: data,
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+// 修改密码（复用若依自带接口）
+export function updatePassword(oldPassword, newPassword) {
+  return request({
+    url: '/system/user/profile/updatePwd',
+    method: 'put',
+    data: { oldPassword, newPassword }
+  })
+}

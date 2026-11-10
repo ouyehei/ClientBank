@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ClientBank.manage.domain.BankAccount;
+import com.ClientBank.manage.domain.vo.SysUserUpdateVo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,5 +129,17 @@ public class BankCustomerExtController extends BaseController
                 .map(BankAccount::getCardNumber)
                 .collect(Collectors.toList());
         return success().put("from_account_ids",cardNumbers);
+    }
+
+    /**
+     * 自助修改用户信息（当前登录用户）
+     */
+    @PreAuthorize("@ss.hasPermi('manage:customerExt:edit')")
+    @Log(title = "个人信息修改", businessType = BusinessType.UPDATE)
+    @PutMapping("/profile")
+    public AjaxResult updateProfile(@RequestBody SysUserUpdateVo updateVo)
+    {
+        int rows = bankCustomerExtService.updateProfile(updateVo);
+        return toAjax(rows);
     }
 }

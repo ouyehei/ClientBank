@@ -2,7 +2,11 @@ package com.ClientBank.manage.service.impl;
 
 import java.util.List;
 
+import com.ClientBank.common.core.domain.entity.SysUser;
+import com.ClientBank.common.utils.SecurityUtils;
 import com.ClientBank.manage.domain.vo.BankCustomerExtUserVo;
+import com.ClientBank.manage.domain.vo.SysUserUpdateVo;
+import com.ClientBank.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -24,6 +28,8 @@ public class IBankCustomerExtServiceImpl implements IBankCustomerExtService
 {
     @Autowired
     private BankCustomerExtMapper bankCustomerExtMapper;
+    @Autowired
+    private ISysUserService userService; // 注入若依自带的用户Service
 
     /**
      * 查询客户信息
@@ -120,6 +126,30 @@ public class IBankCustomerExtServiceImpl implements IBankCustomerExtService
     @Override
     public int updateCustomerStatusToExceptionByUserIds(List<Long> userIds) {
         return bankCustomerExtMapper.updateCustomerStatusToExceptionByUserIds(userIds);
+    }
+
+    @Transactional
+    @Override
+    public int updateProfile(SysUserUpdateVo updateVo) {
+        Long userId = SecurityUtils.getUserId();
+        // 1. 更新扩展表 (bank_customer_ext)
+        BankCustomerExt ext = new BankCustomerExt();
+        ext.setUserId(userId);
+        ext.setRealName(updateVo.getRealName());
+        ext.setIdCardNumber(updateVo.getIdCardNumber());
+        ext.setResidenceAddress(updateVo.getResidenceAddress());
+        ext.setAge(updateVo.getAge());
+        bankCustomerExtMapper.updateBankCustomerExtByUserId(ext);
+        // 2. 更新系统用户表 (sys_user) - 复用若依自带校验
+        SysUser sysUser = new SysUser();
+        sysUser.setUserId(userId);
+        sysUser.setNickName(updateVo.getNickName());
+        sysUser.setEmail(updateVo.getEmail());
+        sysUser.setPhonenumber(updateVo.getPhonenumber());
+        sysUser.setAvatar(updateVo.getAvatar());
+        sysUser.setDeptId(null);
+        userService.updateUserProfile(sysUser);
+        return 1;
     }
 
     /**

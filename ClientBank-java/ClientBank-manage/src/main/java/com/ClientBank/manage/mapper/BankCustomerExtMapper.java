@@ -97,4 +97,9 @@ public interface BankCustomerExtMapper
 
     // 根据用户ID列表，批量更新客户账户状态为异常
     int updateCustomerStatusToExceptionByUserIds(@Param("list") List<Long> userIds);
+
+    /**
+     * 根据用户ID修改扩展信息
+     */
+    public int updateBankCustomerExtByUserId(BankCustomerExt bankCustomerExt);
 }

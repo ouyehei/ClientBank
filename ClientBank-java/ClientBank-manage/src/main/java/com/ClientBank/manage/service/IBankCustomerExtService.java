@@ -3,6 +3,7 @@ package com.ClientBank.manage.service;
 import java.util.List;
 import com.ClientBank.manage.domain.BankCustomerExt;
 import com.ClientBank.manage.domain.vo.BankCustomerExtUserVo;
+import com.ClientBank.manage.domain.vo.SysUserUpdateVo;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -70,4 +71,12 @@ public interface IBankCustomerExtService
 
     // 根据用户ID列表，批量更新客户账户状态为异常
     int updateCustomerStatusToExceptionByUserIds(@Param("list") List<Long> userIds);
+
+    /**
+     * 自助修改用户信息（同时修改sys_user和bank_customer_ext表）
+     * 仅允许修改：昵称、邮箱、手机号、头像、真实姓名、身份证、地址、年龄
+     * @param updateVo 包含两张表的更新字段
+     * @return 结果
+     */
+    int updateProfile(SysUserUpdateVo updateVo);
 }

@@ -6,7 +6,7 @@
     </div>
 
     <div class="business-grid">
-      <!-- 核心业务卡片：通过数据驱动，后续可直接替换为后台返回的接口数据 -->
+      <!-- 核心业务卡片：通过数据驱动 -->
       <div 
         class="business-card" 
         v-for="item in businessList" 
@@ -35,79 +35,106 @@ import {
   Money, 
   Wallet, 
   DocumentChecked, 
-  Refresh 
+  UserFilled // 用于个人信息修改图标
 } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 
-// 业务数据配置（后台字典/接口改造前，先在这里模拟）
+// 业务数据配置
 const businessList = [
   { 
     name: '开立I类户', 
     code: 'OPEN_I_ACCOUNT', 
-    desc: '办理个人I类银行账户',
+    desc: '全功能主账户，需临柜办理',
     icon: User, 
     color: '#409EFF',
-    // 模拟跳转路由
-    path: '/open-account',
-    requiresCounter: false // false: 自主办理; true: 需临柜
+    // I类户必须临柜
+    requiresCounter: true 
   },
   { 
     name: '开立II类户', 
     code: 'OPEN_II_ACCOUNT', 
-    desc: '办理个人II类银行账户',
+    desc: '线上自助快捷开户',
     icon: Wallet, 
     color: '#67C23A',
-    path: '/open-account-ii',
     requiresCounter: false
   },
   { 
     name: '账户销户', 
     code: 'CLOSE_ACCOUNT', 
-    desc: '注销名下闲置账户',
+    desc: '线上自助销户注销',
     icon: Delete, 
     color: '#F56C6C',
-    path: '/close-account',
-    requiresCounter: true // 强制临柜办理
+    requiresCounter: false
   },
   { 
     name: '大额转账', 
     code: 'LARGE_TRANSFER', 
-    desc: '办理大额资金划转',
+    desc: '大额资金划转，超额需预约',
     icon: Money, 
     color: '#E6A23C',
-    path: '/transfer',
-    requiresCounter: false
+    // 转账已有功能，由后端校验阈值
+    requiresCounter: false,
+    hasBackendCheck: true 
   },
   { 
-    name: '大额信贷', 
+    name: '大额借贷', 
     code: 'LARGE_LOAN', 
-    desc: '申请大额个人信贷',
+    desc: '申请个人信贷，超额需预约',
     icon: DocumentChecked, 
     color: '#909399',
-    path: '/loan',
-    requiresCounter: true
+    // 借贷已有功能，由后端校验阈值
+    requiresCounter: false,
+    hasBackendCheck: true
   },
   { 
-    name: '密码重置', 
-    code: 'RESET_PASSWORD', 
-    desc: '找回或重置登录密码',
-    icon: Refresh, 
+    name: '信息修改', 
+    code: 'UPDATE_PROFILE', 
+    desc: '修改昵称、手机号及邮箱',
+    icon: UserFilled, 
     color: '#409EFF',
-    path: '/reset-password',
+    path: '/manage/selfService/profileEdit', // 若依自带接口对应页面或路径
     requiresCounter: false
   }
 ]
 
-// 点击卡片跳转对应业务页面
+// 点击卡片处理逻辑
 const goToService = (item) => {
+  // 1. 必须临柜办理的业务
   if (item.requiresCounter) {
-    // 如果业务需要临柜，弹窗提示用户
-    ElMessage.warning(`"${item.name}" 需前往线下网点办理，建议您选择自主办理业务或稍后前往柜台。`)
-  } else {
-    // 自主办理业务，直接跳转到对应的Vue页面
+    ElMessageBox.alert(
+      `<strong style="font-size:16px; color:#409EFF">${item.name}</strong><br/><br/>
+       该业务涉及账户核心安全，系统检测到必须前往线下网点柜台办理。<br/>
+       建议您携带身份证前往附近银行网点办理。`, 
+      '业务办理提示', 
+      {
+        dangerouslyUseHTMLString: true,
+        confirmButtonText: '我知道了',
+        type: 'warning'
+      }
+    )
+    return;
+  }
+
+  // 2. 已有功能，走后端限额校验的业务（转账/借贷）
+  if (item.hasBackendCheck) {
+    // 跳转到你已有的转账或借贷页面
+    // 后端 Controller 层会校验金额，若超出阈值，直接返回特定的错误码，前端弹窗引导用户填写预约表单
+    if(item.path) {
+      router.push(item.path)
+    } else {
+      // 模拟提示（实际项目中会跳转路由）
+      ElMessage.success(`正在进入${item.name}页面，系统将自动校验额度...`)
+    }
+    return;
+  }
+
+  // 3. 普通自助业务（II类户、销户、信息修改等）
+  if (item.path) {
     router.push(item.path)
+  } else {
+    ElMessage.success(`正在进入${item.name}办理页面...`)
   }
 }
 </script>

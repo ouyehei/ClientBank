@@ -187,4 +187,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </update>
+
+    <update id="updateBankCustomerExtByUserId" parameterType="BankCustomerExt">
+        update bank_customer_ext
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="idCardNumber != null">id_card_number = #{idCardNumber},</if>
+            <if test="residenceAddress != null">residence_address = #{residenceAddress},</if>
+            <if test="age != null">age = #{age},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
 </mapper>

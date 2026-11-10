@@ -96,7 +96,20 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
-  }
+  },
+  {
+  path: '/manage/selfService',
+  component: Layout,
+  hidden: true,
+  children: [
+    {
+      path: 'profileEdit', // 注意这里不要加前导斜杠
+      component: () => import('@/views/manage/selfService/profileEdit'),
+      name: 'ProfileEdit',
+      meta: { title: '信息修改', icon: 'edit', noCache: true }
+    }
+  ]
+}
 ]
 
 // 动态路由，基于用户权限动态去加载
